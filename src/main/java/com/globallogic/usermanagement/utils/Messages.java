@@ -5,8 +5,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Messages {
 
-    public static final String USER_NOT_CREATED_MESSAGE = "Error to create user";
-    public static final String USER_CREATED_MESSAGE = "User created";
+
     public static final String USER_DUPLICATED_MESSAGE = "User duplicated";
     public static final String ERROR_UNCONTROLLED = "An uncontrolled error";
 

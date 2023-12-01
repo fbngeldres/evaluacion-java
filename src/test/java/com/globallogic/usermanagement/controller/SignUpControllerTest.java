@@ -2,6 +2,7 @@ package com.globallogic.usermanagement.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.globallogic.usermanagement.controller.dto.SignUpDto;
+import com.globallogic.usermanagement.controller.dto.SignUpPhoneDto;
 import com.globallogic.usermanagement.utils.Messages;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Arrays;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -31,7 +34,14 @@ class SignUpControllerTest {
     private final String signUpUrl= "/sign-up";
 
 
-    private final SignUpDto signUpDtoOk = SignUpDto.builder().email("user.test2@dominio.com").password("Ga2asffdfdf4").build();
+    private final SignUpDto signUpDtoOk = SignUpDto.builder()
+            .email("user.test2@dominio.com")
+            .password("Ga2asffdfdf4")
+            .phones(Arrays.asList(SignUpPhoneDto.builder()
+                    .countrycode("+51")
+                    .number(12345678L)
+                    .citycode(54).build()))
+            .build();
 
     private final SignUpDto signUpDtoEmailValidation = SignUpDto.builder().email("user.test").build();
     @Test
