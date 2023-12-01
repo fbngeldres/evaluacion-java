@@ -3,7 +3,6 @@ package com.globallogic.usermanagement.config;
 
 import com.globallogic.usermanagement.controller.filter.AuthTokenFilter;
 import com.globallogic.usermanagement.service.UserDetailsServiceImpl;
-import com.globallogic.usermanagement.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

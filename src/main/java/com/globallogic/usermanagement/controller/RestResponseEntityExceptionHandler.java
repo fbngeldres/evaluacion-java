@@ -1,23 +1,16 @@
 package com.globallogic.usermanagement.controller;
 
 import com.globallogic.usermanagement.controller.dto.ErrorDto;
-import com.globallogic.usermanagement.controller.dto.ResponseDto;
 import com.globallogic.usermanagement.exception.ServiceException;
 import com.globallogic.usermanagement.utils.Messages;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 @ControllerAdvice
 @RestControllerAdvice

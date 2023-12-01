@@ -4,15 +4,11 @@ import com.globallogic.usermanagement.bean.StatusService;
 import com.globallogic.usermanagement.bean.StatusServiceEnum;
 import com.globallogic.usermanagement.controller.dto.SignUpDto;
 import com.globallogic.usermanagement.controller.dto.UserDTO;
-import com.globallogic.usermanagement.exception.ServiceException;
-import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
 

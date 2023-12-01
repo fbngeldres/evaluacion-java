@@ -1,13 +1,11 @@
 package com.globallogic.usermanagement.controller;
 
 import com.globallogic.usermanagement.bean.StatusService;
-import com.globallogic.usermanagement.bean.StatusServiceEnum;
 import com.globallogic.usermanagement.controller.dto.ResponseDto;
 import com.globallogic.usermanagement.controller.dto.ResultSignUpDto;
 import com.globallogic.usermanagement.controller.dto.SignUpDto;
 import com.globallogic.usermanagement.service.UserService;
 import com.globallogic.usermanagement.utils.JwtUtils;
-import com.globallogic.usermanagement.utils.Messages;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +15,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 

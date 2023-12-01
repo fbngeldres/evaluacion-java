@@ -6,7 +6,6 @@ import com.globallogic.usermanagement.validators.PasswordValidator;
 import lombok.Builder;
 import lombok.Data;
 
-
 import javax.validation.constraints.NotNull;
 import java.util.List;
 

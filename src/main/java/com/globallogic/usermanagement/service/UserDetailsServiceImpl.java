@@ -1,14 +1,10 @@
 package com.globallogic.usermanagement.service;
 
 import com.globallogic.usermanagement.controller.dto.UserDTO;
-import com.globallogic.usermanagement.service.UserDetailsImpl;
-import com.globallogic.usermanagement.service.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Service
