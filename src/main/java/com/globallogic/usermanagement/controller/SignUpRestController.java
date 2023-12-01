@@ -7,6 +7,7 @@ import com.globallogic.usermanagement.controller.dto.ResultSignUpDto;
 import com.globallogic.usermanagement.controller.dto.SignUpDto;
 import com.globallogic.usermanagement.service.UserService;
 import com.globallogic.usermanagement.utils.JwtUtils;
+import com.globallogic.usermanagement.utils.Messages;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,32 +32,21 @@ public class SignUpRestController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     @PostMapping
-    public ResponseEntity<ResponseDto> signUp( @Valid @RequestBody SignUpDto signUpDTO) throws Exception{
-    String passwordDecrypt = signUpDTO.getPassword();
-    signUpDTO.setPassword(encoder.encode(signUpDTO.getPassword()));
-    StatusService statusService = userService.signUp(signUpDTO);
-    if(statusService.getStatusServiceEnum().equals(StatusServiceEnum.CREATED)){
+    public ResponseEntity<ResponseDto> signUp( @Valid @RequestBody SignUpDto signUpDTO) throws Exception {
+        String passwordDecrypt = signUpDTO.getPassword();
+        signUpDTO.setPassword(encoder.encode(signUpDTO.getPassword()));
+        StatusService statusService = userService.signUp(signUpDTO);
+
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(signUpDTO.getEmail(), passwordDecrypt));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
-         ResultSignUpDto resultSignUpDto = (ResultSignUpDto) statusService.getMessage();
+        ResultSignUpDto resultSignUpDto = (ResultSignUpDto) statusService.getMessage();
         resultSignUpDto.setToken(jwt);
         return ResponseEntity.status(HttpStatus.CREATED).body(ResponseDto.builder()
                 .httpStatus(HttpStatus.CREATED)
                 .message(resultSignUpDto).build());
-    }else if (statusService.getStatusServiceEnum().equals(StatusServiceEnum.DUPLICATED)){
-        return  ResponseEntity.status(HttpStatus.CONFLICT).body(ResponseDto.builder()
-                .httpStatus(HttpStatus.CONFLICT)
-                .message(statusService.getMessage()).build());
-    }else {
-        return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ResponseDto.builder()
-                .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                .message(statusService.getMessage()).build());
-    }
-
-
     }
 }

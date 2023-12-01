@@ -11,8 +11,11 @@ import com.globallogic.usermanagement.utils.Messages;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -32,41 +35,28 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@RunWith(SpringRunner.class)
-@WebMvcTest(SignUpRestController.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 class SignUpControllerTest {
 
 
     @Autowired
     private MockMvc mvc;
 
-    @MockBean
-    private UserService userService;
+
     @Autowired
     private ObjectMapper objectMapper;
 
     private final String signUpUrl= "/sign-up";
 
 
-    private final SignUpDto signUpDtoOk = SignUpDto.builder().email("user.test@dominio.com").password("Ga2asffdfdf4").build();
+    private final SignUpDto signUpDtoOk = SignUpDto.builder().email("user.test2@dominio.com").password("Ga2asffdfdf4").build();
 
     private final SignUpDto signUpDtoEmailValidation = SignUpDto.builder().email("user.test").build();
     @Test
     public void mustSingUpWhenIsOk() throws  Exception{
 
-       String uuidId ="caa19e60-b4b5-47b5-a427-5a4ff1593fbe";
-        String uuidToken ="dd59a382-ccb8-4cbc-845e-131c6c51e635";
-        ResultSignUpDto resultSignUpDto = ResultSignUpDto.builder()
-                .id(UUID.fromString(uuidId))
-                .token(uuidToken)
-                .created(LocalDateTime.now()).lastLogin(LocalDateTime.now()).isActive(true).build();
 
-        StatusService statusService = StatusService.builder()
-                .statusServiceEnum(StatusServiceEnum.CREATED)
-                .message(resultSignUpDto).build();
-
-
-        given(userService.signUp(any())).willReturn(statusService);
 
         mvc.perform(post(signUpUrl)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -74,8 +64,7 @@ class SignUpControllerTest {
         )
 
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.message.id").value("caa19e60-b4b5-47b5-a427-5a4ff1593fbe"));
+                .andExpect(jsonPath("$.message").exists());
 
 
     }
@@ -83,52 +72,32 @@ class SignUpControllerTest {
     @Test
     public void mustNotSingUpWhenIsDuplicated() throws  Exception{
 
+         SignUpDto signUpDtoDuplicated = SignUpDto.builder().email("user.test@dominio.com").password("Ga2asffdfdf4").build();
 
-        StatusService statusService = StatusService.builder().statusServiceEnum(StatusServiceEnum.DUPLICATED)
-                .message(Messages.USER_DUPLICATED_MESSAGE).build();
-
-
-        given(userService.signUp(any())).willReturn(statusService);
+        mvc.perform(post(signUpUrl)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(signUpDtoDuplicated))
+        );
 
         mvc.perform(post(signUpUrl)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(signUpDtoOk))
+                        .content(objectMapper.writeValueAsBytes(signUpDtoDuplicated))
                 )
 
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.message").value(Messages.USER_DUPLICATED_MESSAGE));
-
-
-    }
-
-    @Test
-    public void mustResponseMessageWhenOcurrAnError() throws  Exception{
-
-
-        doThrow(ServiceException.class).when(userService).signUp(any());
-
-        mvc.perform(post(signUpUrl)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(signUpDtoOk))
-                )
-
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.detail").exists())
-                .andExpect(jsonPath("$.detail").value(Messages.ERROR_UNCONTROLLED));
-
+                .andExpect(jsonPath("$.detail").value(Messages.USER_DUPLICATED_MESSAGE))
+                .andExpect(jsonPath("$.codigo").exists())
+                .andExpect(jsonPath("$.codigo").value(HttpStatus.CONFLICT.value()));
 
     }
+
+
 
     @Test
     public void mustResponseBadRequestWhenEmailNotValid() throws  Exception{
 
 
-        StatusService statusService = StatusService.builder().statusServiceEnum(StatusServiceEnum.CREATED)
-                .message(Messages.USER_CREATED_MESSAGE).build();
-
-
-        given(userService.signUp(any())).willReturn(statusService);
 
         mvc.perform(post(signUpUrl)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -147,11 +116,7 @@ class SignUpControllerTest {
         SignUpDto signUpDtoPasswordValidation = SignUpDto.builder().email("user.test@dominio.com").password("1423").build();
 
 
-        StatusService statusService = StatusService.builder().statusServiceEnum(StatusServiceEnum.CREATED)
-                .message(Messages.USER_CREATED_MESSAGE).build();
 
-
-        given(userService.signUp(any())).willReturn(statusService);
 
         mvc.perform(post(signUpUrl)
                         .contentType(MediaType.APPLICATION_JSON)

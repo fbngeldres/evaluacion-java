@@ -4,6 +4,7 @@ import com.globallogic.usermanagement.controller.dto.ErrorDto;
 import com.globallogic.usermanagement.controller.dto.ResponseDto;
 import com.globallogic.usermanagement.exception.ServiceException;
 import com.globallogic.usermanagement.utils.Messages;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +53,18 @@ public class RestResponseEntityExceptionHandler    {
 
 
         return ResponseEntity.internalServerError().body(responseDto);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    public ResponseEntity<ErrorDto> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+
+        ErrorDto responseDto = ErrorDto.builder().timeStamp(LocalDateTime.now())
+                .detail(Messages.USER_DUPLICATED_MESSAGE).codigo(HttpStatus.CONFLICT.value()).build();
+
+
+        return ResponseEntity.unprocessableEntity().body(responseDto);
     }
 
 }

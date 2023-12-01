@@ -10,7 +10,9 @@ import com.globallogic.usermanagement.repository.entity.Phone;
 import com.globallogic.usermanagement.repository.entity.User;
 import com.globallogic.usermanagement.utils.Messages;
 import lombok.AllArgsConstructor;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,41 +27,39 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PhoneRepository phoneRepository;
+
     @Transactional
     public StatusService signUp(SignUpDto signUpDTO) throws ServiceException {
 
-        User user = new User();
-        user.setName(signUpDTO.getName());
-        user.setPassword( signUpDTO.getPassword());
-        user.setEmail(signUpDTO.getEmail());
 
+        try {
+            User user = new User();
+            user.setName(signUpDTO.getName());
+            user.setPassword(signUpDTO.getPassword());
+            user.setEmail(signUpDTO.getEmail());
 
-
-
-        try{
             userRepository.save(user);
-            user.setPhones(signUpDTO.getPhones().stream()
-                    .map(phone -> Phone.builder()
-                            .id(UUID.randomUUID())
-                            .countrycode(phone.getCountrycode())
-                            .number(phone.getNumber())
-                            .citycode(phone.getCitycode())
-                            .user(user)
-                            .build()).collect(Collectors.toList()));
-            userRepository.save(user);
+            if (signUpDTO.getPhones() != null) {
+                user.setPhones(signUpDTO.getPhones().stream()
+                        .map(phone -> Phone.builder()
+                                .id(UUID.randomUUID())
+                                .countrycode(phone.getCountrycode())
+                                .number(phone.getNumber())
+                                .citycode(phone.getCitycode())
+                                .user(user)
+                                .build()).collect(Collectors.toList()));
+                userRepository.save(user);
+            }
 
 
             return StatusService.builder().statusServiceEnum(StatusServiceEnum.CREATED)
                     .message(ResultSignUpDto.builder()
-                    .id(user.getId())
+                            .id(user.getId())
                             .created(user.getCreated())
                             .isActive(user.isActive())
-                    .build()).build();
-        } catch (DataIntegrityViolationException e) {
-            return StatusService.builder().statusServiceEnum(StatusServiceEnum.DUPLICATED)
-                    .message(user).build();
-        }catch (Exception e) {
+                            .build()).build();
+
+        } catch (Exception e) {
             throw new ServiceException(Messages.ERROR_UNCONTROLLED);
         }
 
@@ -90,23 +90,39 @@ public class UserService {
     }
 
     @Transactional
-    public Optional<UserDTO> getUserByEmail(String email)   {
+    public Optional<UserDTO> getUserByEmail(String email) throws UsernameNotFoundException  {
         Optional<User> userRepositoryByEmail = this.userRepository.findByEmail(email);
-        return  userRepositoryByEmail.map(user -> UserDTO.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .password(user.getPassword())
-                .email(user.getEmail())
-                .created(user.getCreated())
-                .lastLogin(user.getLastLogin())
-                .isActive(user.isActive())
-                .phones(user.getPhones().stream().map(phone -> UserPhoneDto.builder().
-                        countrycode(phone.getCountrycode())
-                                .citycode(phone.getCitycode())
-                                        .number(phone.getNumber())
-                        .build()).collect(Collectors.toList()))
-                .build()
-        )   ;
+        if( userRepositoryByEmail.isPresent()){
+
+            return  userRepositoryByEmail.map(user -> {
+
+                List<UserPhoneDto> phoneDtos= null;
+                if(user.getPhones() != null){
+
+                    phoneDtos= user.getPhones().stream().map(phone -> UserPhoneDto.builder().
+                            countrycode(phone.getCountrycode())
+                            .citycode(phone.getCitycode())
+                            .number(phone.getNumber())
+                            .build()).collect(Collectors.toList());
+
+
+                }
+                return UserDTO.builder()
+                        .id(user.getId())
+                        .name(user.getName())
+                        .password(user.getPassword())
+                        .email(user.getEmail())
+                        .created(user.getCreated())
+                        .lastLogin(user.getLastLogin())
+                        .isActive(user.isActive())
+                        .phones(phoneDtos)
+                        .build();
+                    }
+            )   ;
+        }else{
+            throw new UsernameNotFoundException(Messages.DATA_NOT_FOUND);
+        }
+
     }
 
     public List<UserDTO> getAll() throws ServiceException {
